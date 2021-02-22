@@ -4,16 +4,18 @@ using UnityEngine;
 
 public class CarController : MonoBehaviour
 {
-    void Start()
+    private void Start()
     {
         Debug.Log("Start Function Called");
     }
 
-    void Update()
+    private void Update()
     {
         fCalcVel(mInput.y, mInput.x);
 
         fApplyVel();
+
+        fRotateSteeringWheel();
 
         mInput = Vector3.zero;
     }
@@ -29,25 +31,26 @@ public class CarController : MonoBehaviour
     private void fCalcVel(float verticalInput, float horizontalInput)
     {
         mCurVel += Vector3.forward * mAcc * verticalInput * Time.deltaTime;
-        mCurAngularVel += mAngularAcc * Vector3.up * horizontalInput * Time.deltaTime;
 
-        if (verticalInput == 0.0f) 
+        if (mCurVel.z != 0.0f)
+        {
+            float deltaAngularVelAmount = Mathf.Abs(mCurVel.z) / mMaxVel;
+            mCurAngularVel += (mMaxAngularVel * deltaAngularVelAmount) * Vector3.up * horizontalInput * Time.deltaTime;
+        }
+
+        if (verticalInput == 0.0f)
+        {
             mCurVel.z = fApplyDeccel(mCurVel.z, mDecc);
 
+        }
         if (horizontalInput == 0.0f)
             mCurAngularVel.y = fApplyDeccel(mCurAngularVel.y, mAngularDecc);
-
-        mCurVel.z = fClampVel(mCurVel.z, mMaxVel);
-        mCurAngularVel.y = fClampVel(mCurAngularVel.y, mMaxAngularVel);
+        
+        mCurVel.z = Mathf.Clamp(mCurVel.z, mMaxBackwardVel, mMaxVel);
+        mCurAngularVel.y = Mathf.Clamp(mCurAngularVel.y, -mMaxAngularVel, mMaxAngularVel);
     }
 
-    float fClampVel(float curVel, float maxMagnitude)
-    {
-        curVel = Mathf.Clamp(curVel, -maxMagnitude, maxMagnitude);
-        return(curVel);
-    }
-
-    float fApplyDeccel(float curVel, float decc)
+    private float fApplyDeccel(float curVel, float decc)
     {
         if (curVel != 0.0f)
         {
@@ -61,28 +64,35 @@ public class CarController : MonoBehaviour
         return(curVel);
     }
     
-    void fApplyVel()
+    private void fApplyVel()
     {
         transform.position += transform.rotation * (mCurVel * Time.deltaTime);
 
         transform.Rotate(mCurAngularVel.x, mCurAngularVel.y, mCurAngularVel.z);
     }
 
+    private void fRotateSteeringWheel()
+    {
+        mSteeringWheel.transform.localRotation = Quaternion.Euler(0.0f, 0.0f, -(mCurAngularVel.y / mMaxAngularVel * 45.0f));
+    }
+
     #region Variables
     [Header("Movement")]
     [SerializeField] private float mAcc;
+    [SerializeField] private float mBackwardAcc;
+    [SerializeField] private float mMaxVel;
+    [SerializeField] private float mMaxBackwardVel;
     [SerializeField] private float mDecc;
     [SerializeField] private Vector3 mCurVel;
-    [SerializeField] private float mMaxVel;
 
     [Header("Rotation")]
-    [SerializeField] private float mAngularAcc;
-
+    [SerializeField] private float mMaxAngularVel;
     [SerializeField] private float mAngularDecc;
     [SerializeField] private Vector3 mCurAngularVel;
-    [SerializeField] private float mMaxAngularVel;
+
+    [Header("Steering Wheel Stuff")] 
+    [SerializeField] private GameObject mSteeringWheel;
 
     private Vector2 mInput;
-
     #endregion
 }
