@@ -12,8 +12,17 @@ public class SafetyChecker : MonoBehaviour
         Vector3 direction = transform.forward.normalized;
 
         Ray ray = new Ray(origin, direction);
-        if (Physics.Raycast(ray, mDistance))
+        if (Physics.Raycast(ray, out RaycastHit hitInfo, mDistance))
+        {
             color = Color.red;
+
+            SafetyCheckListener safetyCheckListener = hitInfo.transform.GetComponentInChildren<SafetyCheckListener>();
+            if (safetyCheckListener == null)
+                safetyCheckListener = hitInfo.transform.GetComponentInParent<SafetyCheckListener>();
+
+            if(safetyCheckListener != null)
+                safetyCheckListener.fRecieveRayFromSafetyChecker(Ranges.Danger);
+        }
 
         Debug.DrawRay(origin, direction * mDistance, color);
     }

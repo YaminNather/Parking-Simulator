@@ -15,7 +15,6 @@ public class PlayerMgr : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log($"Mouse X = {Input.GetAxis("Mouse X")}");
         mCarController.fAddToInput(new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")));
 
         mCam.transform.Rotate(new Vector3(0.0f, Input.GetAxis("Mouse X") * mCamSens, 0.0f) * Time.deltaTime);
