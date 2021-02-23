@@ -22,7 +22,7 @@ public class PlayerMgr : MonoBehaviour
 
     private void fSetSafetyCheckersDistance(float distance)
     {
-        foreach (SafetyChecker sc in GetComponentsInChildren<SafetyChecker>()) 
+        foreach (SafetyChecker.SafetyChecker sc in GetComponentsInChildren<SafetyChecker.SafetyChecker>()) 
             sc.fSetDistance(distance);
     }
 
