@@ -6,13 +6,17 @@ public class CarController : MonoBehaviour
 {
     private void Start()
     {
+        mRigidbody = GetComponent<Rigidbody>();
         Debug.Log("Start Function Called");
     }
 
     private void Update()
     {
         fCalcVel(mInput.y, mInput.x);
+    }
 
+    private void FixedUpdate()
+    {
         fApplyVel();
 
         fRotateSteeringWheel();
@@ -66,7 +70,22 @@ public class CarController : MonoBehaviour
     
     private void fApplyVel()
     {
-        transform.position += transform.rotation * (mCurVel * Time.deltaTime);
+        Vector3 direction = transform.rotation * mCurVel.normalized;
+        float magnitude = mCurVel.magnitude * Time.deltaTime;
+        
+        Vector3 deltaMovement = Vector3.zero;
+        if (!mRigidbody.SweepTest(direction, out RaycastHit hitInfo, magnitude))
+        {
+            Debug.Log("Not Colliding");
+            deltaMovement = direction * magnitude;
+        }
+        else
+        {
+            Debug.Log("Colliding");
+            deltaMovement = direction * (hitInfo.distance - 0.1f);
+        }
+
+        transform.position += deltaMovement;
 
         transform.Rotate(mCurAngularVel.x, mCurAngularVel.y, mCurAngularVel.z);
     }
@@ -77,6 +96,8 @@ public class CarController : MonoBehaviour
     }
 
     #region Variables
+    private Rigidbody mRigidbody;
+
     [Header("Movement")]
     [SerializeField] private float mAcc;
     [SerializeField] private float mBackwardAcc;
