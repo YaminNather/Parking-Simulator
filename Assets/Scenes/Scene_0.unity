@@ -741,7 +741,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mCamSens: 45
-  mSafetyCheckersDistance: 1
+  mWarningCheckDistance: 2
+  mDangerCheckDistance: 1
 --- !u!114 &1606320073
 MonoBehaviour:
   m_ObjectHideFlags: 0

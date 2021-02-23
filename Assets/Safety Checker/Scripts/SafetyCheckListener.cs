@@ -1,13 +1,22 @@
+using System.Collections.Generic;
+using UnityEditor.UI;
 using UnityEngine;
+using UnityEngine.SocialPlatforms;
 
 namespace SafetyChecker
 {
     public class SafetyCheckListener : MonoBehaviour
     {
+        private void Start()
+        {
+            mRecievedRanges = new List<Ranges>();
+        }
+
         internal void fRecieveRayFromSafetyChecker(Ranges range)
         {
             mRecievedRay = true;
-            fSwitchRange(range);
+            mRecievedRanges.Add(range);
+            //fSwitchRange(range);
         }
 
         private void fSwitchRange(Ranges range)
@@ -51,12 +60,19 @@ namespace SafetyChecker
 
         protected virtual void LateUpdate()
         {
-            if (mCurRange != Ranges.Safety && mRecievedRay == false)
+            if (mRecievedRay == false)
             {
-                fSwitchRange(Ranges.Safety);
+                if (mCurRange != Ranges.Safety) 
+                    fSwitchRange(Ranges.Safety);
+            }
+            else
+            {
+                Ranges selectedRange = (mRecievedRanges.Contains(Ranges.Danger)) ? Ranges.Danger : Ranges.Warning;
+                fSwitchRange(selectedRange);
             }
 
             mRecievedRay = false;
+            mRecievedRanges.Clear();
         }
 
         protected virtual void fOnEnterSafetyRange()
@@ -84,8 +100,11 @@ namespace SafetyChecker
         }
 
 
+        #region Variables
         private bool mRecievedRay = false;
+        private List<Ranges> mRecievedRanges;
         internal Ranges mCurRange = Ranges.Safety;
+        #endregion
     }
 
     public enum Ranges

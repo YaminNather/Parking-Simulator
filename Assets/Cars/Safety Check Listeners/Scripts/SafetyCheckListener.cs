@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
+using UnityEditor.ShaderGraph;
 using UnityEngine;
 
 
@@ -7,18 +9,25 @@ namespace DummyCar
 {
     public class SafetyCheckListener : SafetyChecker.SafetyCheckListener
     {
-        protected override void fOnEnterDangerRange()
+        protected override void fOnEnterDangerRange() => fSetSafetyRangeValueInMaterial(1.0f);
+
+        protected override void fOnEnterWarningRange() => fSetSafetyRangeValueInMaterial(0.5f);
+
+        protected override void fOnEnterSafetyRange() => fSetSafetyRangeValueInMaterial(0.0f);
+
+        private void fSetSafetyRangeValueInMaterial(float value)
         {
-            MeshRenderer[] meshRenderers = transform.parent.GetComponentsInChildren<MeshRenderer>();
+            foreach (Material material in fGetAllMaterials())
+                material.SetFloat("_SafetyRange", value);
+        }
+
+        private Material[] fGetAllMaterials()
+        {
             List<Material> materials = new List<Material>();
-            foreach (MeshRenderer meshRenderer in meshRenderers)
+            foreach(MeshRenderer meshRenderer in transform.parent.GetComponentsInChildren<MeshRenderer>())
                 materials.AddRange(meshRenderer.materials);
 
-            foreach (Material material in materials)
-            {
-                Color curColor = material.GetColor("_BaseColor");
-                material.SetColor("_BaseColor", Color.Lerp(curColor, Color.red, 0.5f));
-            }
+            return(materials.ToArray());
         }
     }
 }

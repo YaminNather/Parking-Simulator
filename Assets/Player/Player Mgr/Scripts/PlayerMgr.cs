@@ -10,7 +10,7 @@ public class PlayerMgr : MonoBehaviour
         mCam = GetComponentInChildren<Camera>();
         mCarController = GetComponent<CarController>();
 
-        fSetSafetyCheckersDistance(mSafetyCheckersDistance);
+        fSetSafetyCheckersDistance(mDangerCheckDistance, mWarningCheckDistance);
     }
 
     private void Update()
@@ -20,16 +20,19 @@ public class PlayerMgr : MonoBehaviour
         mCam.transform.Rotate(new Vector3(0.0f, Input.GetAxis("Mouse X") * mCamSens, 0.0f) * Time.deltaTime);
     }
 
-    private void fSetSafetyCheckersDistance(float distance)
+    private void fSetSafetyCheckersDistance(float dangerDistance, float warningDistance)
     {
-        foreach (SafetyChecker.SafetyChecker sc in GetComponentsInChildren<SafetyChecker.SafetyChecker>()) 
-            sc.fSetDistance(distance);
+        foreach (SafetyChecker.SafetyChecker sc in GetComponentsInChildren<SafetyChecker.SafetyChecker>())
+        {
+            sc.fWarningDistance(warningDistance);
+            sc.fDangerDistance(dangerDistance);
+        }
     }
 
 #if UNITY_EDITOR
     private void OnValidate()
     {
-        fSetSafetyCheckersDistance(mSafetyCheckersDistance);
+        fSetSafetyCheckersDistance(mDangerCheckDistance, mWarningCheckDistance);
     }
 #endif
 
@@ -41,7 +44,8 @@ public class PlayerMgr : MonoBehaviour
     [SerializeField] private float mCamSens = 45.0f;
 
     [Header("Safety Checker Stuff")] 
-    [SerializeField] private float mSafetyCheckersDistance = 5.0f;
+    [SerializeField] private float mWarningCheckDistance = 5.0f;
+    [SerializeField] private float mDangerCheckDistance = 2.0f;
 
     #endregion
 }
