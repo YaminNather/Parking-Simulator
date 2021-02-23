@@ -2016,7 +2016,7 @@ GameObject:
   - component: {fileID: 4354474184020986}
   - component: {fileID: 33096528632066060}
   - component: {fileID: 64897457031391014}
-  - component: {fileID: 6666550077041363762}
+  - component: {fileID: 76689783906812134}
   m_Layer: 0
   m_Name: Collider
   m_TagString: Untagged
@@ -2060,7 +2060,7 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300028, guid: 09daf63b07ae7ae438ec02fd869b9967, type: 3}
---- !u!114 &6666550077041363762
+--- !u!114 &76689783906812134
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2069,7 +2069,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1781231522339620}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d3638ca6be7533f46a71c4272913e71c, type: 3}
+  m_Script: {fileID: 11500000, guid: 7722428ff69116845afb9b23b14417bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1784436821856056
