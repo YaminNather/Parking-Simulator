@@ -1,7 +1,3 @@
-using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class CarController : MonoBehaviour
@@ -93,15 +89,15 @@ public class CarController : MonoBehaviour
 
         void lfApplyAngularVel()
         {
-            //if (!fRotationalSweepTest(mCurAngularVel, out RaycastHit hitInfo))
+            //if (!fRotationalSweepTest(mCurAngularVel * Time.deltaTime, out RaycastHit hitInfo))
             //{
             //    Debug.Log("No Rotational Collision");
-            //    transform.Rotate(new Vector3(mCurAngularVel.x, mCurAngularVel.y, mCurAngularVel.z) * Time.deltaTime);
+            //    transform.Rotate(mCurAngularVel * Time.deltaTime);
             //}
             //else
             //    Debug.Log($"Rotational Collision with {hitInfo.transform.name}", hitInfo.transform.gameObject);
 
-            transform.Rotate(new Vector3(mCurAngularVel.x, mCurAngularVel.y, mCurAngularVel.z) * Time.deltaTime);
+            transform.Rotate(mCurAngularVel * Time.deltaTime);
         }
 
         lfapplyMovementVel();
@@ -126,49 +122,88 @@ public class CarController : MonoBehaviour
 
     private bool fRotationalSweepTest(Vector3 angle, out RaycastHit hitInfo)
     {
-        Collider collider = GetComponentInChildren<Collider>();
+        hitInfo = new RaycastHit();
+
+        BoxCollider collider = GetComponentInChildren<BoxCollider>();
         Bounds bounds = collider.bounds;
         Vector3[] points = new Vector3[]
         {
-            bounds.center + new Vector3(bounds.extents.x, bounds.extents.y, bounds.extents.z),
-            bounds.center + new Vector3(-bounds.extents.x, bounds.extents.y, bounds.extents.z),
-            bounds.center + new Vector3(bounds.extents.x, bounds.extents.y, -bounds.extents.z),
-            bounds.center + new Vector3(-bounds.extents.x, bounds.extents.y, -bounds.extents.z),
+            collider.center + new Vector3(collider.size.x, collider.size.y, collider.size.z) * 0.5f,
+            collider.center + new Vector3(-collider.size.x, collider.size.y, collider.size.z) * 0.5f,
+            collider.center + new Vector3(collider.size.x, collider.size.y, -collider.size.z) * 0.5f,
+            collider.center + new Vector3(-collider.size.x, collider.size.y, -collider.size.z) * 0.5f,
 
-            bounds.center + new Vector3(bounds.extents.x, -bounds.extents.y, bounds.extents.z),
-            bounds.center + new Vector3(-bounds.extents.x, -bounds.extents.y, bounds.extents.z),
-            bounds.center + new Vector3(bounds.extents.x, -bounds.extents.y, -bounds.extents.z),
-            bounds.center + new Vector3(-bounds.extents.x, -bounds.extents.y, -bounds.extents.z)
+            collider.center + new Vector3(collider.size.x, -collider.size.y, collider.size.z) * 0.5f,
+            collider.center + new Vector3(-collider.size.x, -collider.size.y, collider.size.z) * 0.5f,
+            collider.center + new Vector3(collider.size.x, -collider.size.y, -collider.size.z) * 0.5f,
+            collider.center + new Vector3(-collider.size.x, -collider.size.y, -collider.size.z) * 0.5f
         };
+
+        for (int i = 0; i < points.Length; i++)
+            points[i] = collider.transform.TransformPoint(points[i]);
 
         RaycastHit? leastDistanceHitInfo = null;
         foreach (Vector3 point in points)
         {
-            Ray ray = new Ray(point, Quaternion.Euler(angle) * (point - bounds.center) - point);
-            if (Physics.Raycast(ray, out RaycastHit curPointHitInfo))
+            Ray ray = new Ray(point, Quaternion.Euler(collider.transform.eulerAngles + angle) * (point - collider.transform.TransformPoint(collider.center)) - point);
+            Debug.DrawRay(ray.origin, ray.direction, Color.cyan);
+
+            if (lfcustomRaycast(ray, out RaycastHit curHitInfo, gameObject))
             {
                 if (leastDistanceHitInfo == null)
                 {
-                    leastDistanceHitInfo = curPointHitInfo;
+                    leastDistanceHitInfo = curHitInfo;
+                    continue;
                 }
-                else
-                {
-                    if (curPointHitInfo.distance < leastDistanceHitInfo?.distance)
-                        leastDistanceHitInfo = curPointHitInfo;
-                }
+
+                if (curHitInfo.distance < leastDistanceHitInfo?.distance)
+                    leastDistanceHitInfo = curHitInfo;
             }
         }
 
-        if (leastDistanceHitInfo != null)
+        if (leastDistanceHitInfo == null)
         {
-            hitInfo = (RaycastHit)leastDistanceHitInfo;
+            return false;
+        }
+        
+        hitInfo = (RaycastHit)leastDistanceHitInfo;
+        return true;
+
+        bool lfcustomRaycast(Ray ray, out RaycastHit raycastHit, GameObject toIgnore)
+        {
+            raycastHit = new RaycastHit();
+
+            RaycastHit[] hitInfos = Physics.RaycastAll(ray.origin, ray.direction);
+
+            if (hitInfos.Length == 0)
+                return false;
+
+            RaycastHit? smallestHitInfoForPoint = lfgetSmallestRaycastHit(hitInfos, toIgnore.gameObject);
+
+            if (smallestHitInfoForPoint == null)
+                return false;
+
+            raycastHit = (RaycastHit)smallestHitInfoForPoint;
             return true;
+
         }
 
-        else
+        RaycastHit? lfgetSmallestRaycastHit(RaycastHit[] hitInfos, GameObject toIgnore)
         {
-            hitInfo = new RaycastHit();
-            return false;
+            if (hitInfos.Length == 1 && hitInfos[0].transform.gameObject == toIgnore)
+                return null;
+
+            RaycastHit r = (hitInfos[0].transform.gameObject != toIgnore) ? hitInfos[0] : hitInfos[1];
+            foreach (RaycastHit hitInfo in hitInfos)
+            {
+                if (hitInfo.transform.gameObject == toIgnore)
+                    continue;
+
+                if (hitInfo.distance < r.distance)
+                    r = hitInfo;
+            }
+
+            return r;
         }
     }
 
