@@ -556,7 +556,7 @@ MeshCollider:
   m_GameObject: {fileID: 287611340}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 4
   m_Convex: 0
   m_CookingOptions: 30
@@ -1666,8 +1666,8 @@ MonoBehaviour:
   mMaxBackwardVel: -2
   mDecc: 8
   mCurVel: {x: 0, y: 0, z: 0}
-  mMaxAngularVel: 1
-  mAngularDecc: 4
+  mMaxAngularVel: 90
+  mAngularDecc: 100
   mCurAngularVel: {x: 0, y: 0, z: 0}
   mSteeringWheel: {fileID: 820645957}
 --- !u!4 &1606320074

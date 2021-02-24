@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEditor;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class CarController : MonoBehaviour
@@ -67,27 +69,44 @@ public class CarController : MonoBehaviour
     
     private void fApplyVel()
     {
-        Vector3 direction = transform.rotation * mCurVel.normalized;
-        float magnitude = mCurVel.magnitude * Time.deltaTime;
-        
-        Vector3 deltaMovement = Vector3.zero;
-        if (!mRigidbody.SweepTest(direction, out RaycastHit hitInfo, magnitude))
+        void lfapplyMovementVel()
         {
-            Debug.Log("Not Colliding");
-            
-            deltaMovement = direction * magnitude;
-        }
-        
-        else
-        {
-            Debug.Log("Colliding");
-            deltaMovement = direction * (hitInfo.distance - 0.01f);
-            mCurVel = Vector3.zero;
+            Vector3 direction = transform.rotation * mCurVel.normalized;
+            float magnitude = mCurVel.magnitude * Time.deltaTime;
+
+            Vector3 deltaMovement = Vector3.zero;
+            if (!mRigidbody.SweepTest(direction, out RaycastHit hitInfo, magnitude))
+            {
+                //Debug.Log("Not Colliding");
+
+                deltaMovement = direction * magnitude;
+            }
+
+            else
+            {
+                //Debug.Log("Colliding");
+                deltaMovement = direction * (hitInfo.distance - 0.5f);
+                mCurVel = Vector3.zero;
+            }
+
+            transform.position += deltaMovement;
         }
 
-        transform.position += deltaMovement;
+        void lfApplyAngularVel()
+        {
+            //if (!fRotationalSweepTest(mCurAngularVel, out RaycastHit hitInfo))
+            //{
+            //    Debug.Log("No Rotational Collision");
+            //    transform.Rotate(new Vector3(mCurAngularVel.x, mCurAngularVel.y, mCurAngularVel.z) * Time.deltaTime);
+            //}
+            //else
+            //    Debug.Log($"Rotational Collision with {hitInfo.transform.name}", hitInfo.transform.gameObject);
 
-        transform.Rotate(mCurAngularVel.x, mCurAngularVel.y, mCurAngularVel.z);
+            transform.Rotate(new Vector3(mCurAngularVel.x, mCurAngularVel.y, mCurAngularVel.z) * Time.deltaTime);
+        }
+
+        lfapplyMovementVel();
+        lfApplyAngularVel();
     }
 
     private void fRotateSteeringWheel()
@@ -106,10 +125,53 @@ public class CarController : MonoBehaviour
         }
     }
 
-    //private void fRotationalSweepTest(Vector3 angle, out RaycastHit hitInfo)
-    //{
+    private bool fRotationalSweepTest(Vector3 angle, out RaycastHit hitInfo)
+    {
+        Collider collider = GetComponentInChildren<Collider>();
+        Bounds bounds = collider.bounds;
+        Vector3[] points = new Vector3[]
+        {
+            bounds.center + new Vector3(bounds.extents.x, bounds.extents.y, bounds.extents.z),
+            bounds.center + new Vector3(-bounds.extents.x, bounds.extents.y, bounds.extents.z),
+            bounds.center + new Vector3(bounds.extents.x, bounds.extents.y, -bounds.extents.z),
+            bounds.center + new Vector3(-bounds.extents.x, bounds.extents.y, -bounds.extents.z),
 
-    //}
+            bounds.center + new Vector3(bounds.extents.x, -bounds.extents.y, bounds.extents.z),
+            bounds.center + new Vector3(-bounds.extents.x, -bounds.extents.y, bounds.extents.z),
+            bounds.center + new Vector3(bounds.extents.x, -bounds.extents.y, -bounds.extents.z),
+            bounds.center + new Vector3(-bounds.extents.x, -bounds.extents.y, -bounds.extents.z)
+        };
+
+        RaycastHit? leastDistanceHitInfo = null;
+        foreach (Vector3 point in points)
+        {
+            Ray ray = new Ray(point, Quaternion.Euler(angle) * (point - bounds.center) - point);
+            if (Physics.Raycast(ray, out RaycastHit curPointHitInfo))
+            {
+                if (leastDistanceHitInfo == null)
+                {
+                    leastDistanceHitInfo = curPointHitInfo;
+                }
+                else
+                {
+                    if (curPointHitInfo.distance < leastDistanceHitInfo?.distance)
+                        leastDistanceHitInfo = curPointHitInfo;
+                }
+            }
+        }
+
+        if (leastDistanceHitInfo != null)
+        {
+            hitInfo = (RaycastHit)leastDistanceHitInfo;
+            return true;
+        }
+
+        else
+        {
+            hitInfo = new RaycastHit();
+            return false;
+        }
+    }
 
     #region Variables
     private Rigidbody mRigidbody;
