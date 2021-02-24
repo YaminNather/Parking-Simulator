@@ -10,13 +10,10 @@ public class CarController : MonoBehaviour
         Debug.Log("Start Function Called");
     }
 
-    private void Update()
-    {
-        fCalcVel(mInput.y, mInput.x);
-    }
-
     private void FixedUpdate()
     {
+        fCalcVel(mInput.y, mInput.x);
+
         fApplyVel();
 
         fRotateSteeringWheel();
@@ -82,7 +79,8 @@ public class CarController : MonoBehaviour
         else
         {
             Debug.Log("Colliding");
-            deltaMovement = direction * (hitInfo.distance - 0.1f);
+            deltaMovement = direction * (hitInfo.distance + 0.01f);
+            mCurVel = Vector3.zero;
         }
 
         transform.position += deltaMovement;
