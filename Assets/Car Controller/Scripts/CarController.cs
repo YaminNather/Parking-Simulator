@@ -81,7 +81,7 @@ public class CarController : MonoBehaviour
         else
         {
             Debug.Log("Colliding");
-            deltaMovement = direction * (hitInfo.distance + 0.01f);
+            deltaMovement = direction * (hitInfo.distance - 0.01f);
             mCurVel = Vector3.zero;
         }
 
@@ -93,6 +93,22 @@ public class CarController : MonoBehaviour
     private void fRotateSteeringWheel()
     {
         mSteeringWheel.transform.localRotation = Quaternion.Euler(0.0f, 0.0f, -(mCurAngularVel.y / mMaxAngularVel * 45.0f));
+    }
+
+    private void fDrawSweepTestRay(Vector3 direction)
+    {
+        MeshCollider meshCollider = GetComponentInChildren<MeshCollider>();
+
+        foreach (Vector3 vertex in meshCollider.sharedMesh.vertices)
+        {
+            Vector3 origin = meshCollider.transform.position + meshCollider.transform.rotation * vertex;
+            Debug.DrawRay(origin, direction, Color.cyan);
+        }
+    }
+
+    private void fRotationalSweepTest(Vector3 angle, out RaycastHit hitInfo)
+    {
+
     }
 
     #region Variables
