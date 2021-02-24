@@ -106,6 +106,11 @@ public class CarController : MonoBehaviour
         }
     }
 
+    private void fRotationalSweepTest(Vector3 angle, out RaycastHit hitInfo)
+    {
+
+    }
+
     #region Variables
     private Rigidbody mRigidbody;
 
