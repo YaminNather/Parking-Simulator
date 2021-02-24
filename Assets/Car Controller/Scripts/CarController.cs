@@ -12,7 +12,7 @@ public class CarController : MonoBehaviour
         Debug.Log("Start Function Called");
     }
 
-    private void FixedUpdate()
+    private void LateUpdate()
     {
         fCalcVel(mInput.y, mInput.x);
 
@@ -44,9 +44,8 @@ public class CarController : MonoBehaviour
         if (verticalInput == 0.0f)
         {
             mCurVel.z = fApplyDeccel(mCurVel.z, mDecc);
-
         }
-        if (horizontalInput == 0.0f)
+        if (mCurVel.z == 0.0f || horizontalInput == 0.0f)
             mCurAngularVel.y = fApplyDeccel(mCurAngularVel.y, mAngularDecc);
         
         mCurVel.z = Mathf.Clamp(mCurVel.z, mMaxBackwardVel, mMaxVel);
