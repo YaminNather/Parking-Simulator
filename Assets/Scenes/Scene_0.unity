@@ -1660,9 +1660,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 459192cceeb058a478efd6b138cc1f95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mAcc: 3
+  mAcc: 5
   mBackwardAcc: 3
-  mMaxVel: 5
+  mMaxVel: 10
   mMaxBackwardVel: -2
   mDecc: 8
   mCurVel: {x: 0, y: 0, z: 0}
