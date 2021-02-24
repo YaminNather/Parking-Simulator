@@ -51,7 +51,7 @@ public class CarController : MonoBehaviour
         mCurAngularVel.y = Mathf.Clamp(mCurAngularVel.y, -mMaxAngularVel, mMaxAngularVel);
     }
 
-    private float fApplyDeccel(float curVel, float decc)
+    private static float fApplyDeccel(float curVel, float decc)
     {
         if (curVel != 0.0f)
         {
@@ -74,8 +74,10 @@ public class CarController : MonoBehaviour
         if (!mRigidbody.SweepTest(direction, out RaycastHit hitInfo, magnitude))
         {
             Debug.Log("Not Colliding");
+            
             deltaMovement = direction * magnitude;
         }
+        
         else
         {
             Debug.Log("Colliding");
