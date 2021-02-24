@@ -31,13 +31,13 @@ namespace SafetyChecker
                     else
                         safetyCheckListener.fRecieveRayFromSafetyChecker(Ranges.Warning);
 
-                    Debug.DrawRay(origin, direction * mWarningDistance, debugRayColor);
+                    //Debug.DrawRay(origin, direction * mWarningDistance, debugRayColor);
                 }
             }
             else
             {
-                Debug.DrawRay(origin, direction * mDangerDistance, Color.red);
-                Debug.DrawRay(origin + (direction * mDangerDistance), direction * (mWarningDistance - mDangerDistance), Color.yellow);
+                //Debug.DrawRay(origin, direction * mDangerDistance, Color.red);
+                //Debug.DrawRay(origin + (direction * mDangerDistance), direction * (mWarningDistance - mDangerDistance), Color.yellow);
             }
         }
 
